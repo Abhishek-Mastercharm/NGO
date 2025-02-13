@@ -1,17 +1,14 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import Rescue from "../pages/Rescue";
 
-Modal.setAppElement("#root"); // Required for accessibility
+Modal.setAppElement("#root");
 
 function HeroSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    donationAmount: "",
-    name: "",
-    location: "",
-    description: "",
-  });
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ donationAmount: "" });
   const [errors, setErrors] = useState({});
 
   const openModal = () => setIsModalOpen(true);
@@ -19,33 +16,28 @@ function HeroSection() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
-    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newErrors = {};
-    Object.entries(formData).forEach(([key, value]) => {
-      if (!value.trim()) {
-        newErrors[key] = "This field is required";
-      }
-    });
-    if (Object.keys(newErrors).length) {
-      setErrors(newErrors);
+  const handleProceed = () => {
+    const amount = formData.donationAmount.trim();
+    if (!amount || isNaN(amount) || amount <= 0) {
+      setErrors({ donationAmount: "Please enter a valid amount" });
       return;
     }
-    console.log("Form submitted", formData);
-    closeModal();
+
+    navigate("/donation", { state: { donationAmount: amount } });
   };
 
   return (
-    <div className="min-h-screen bg-blue-100 flex justify-center items-center p-6">
-      <div className="w-full max-w-6xl bg-white p-8 rounded-xl shadow-lg relative flex flex-col md:flex-row items-center">
+    <div className="min-h-screen bg-yellow-200 flex justify-center items-center p-6">
+      <div className="w-full max-w-6xl bg-white p-8 rounded-xl shadow-lg flex flex-col md:flex-row items-center">
         {/* Left Side - Hero Content */}
-        <div className="w-full md:w-2/3 p-6 flex flex-col items-center text-center md:text-left">
+        <div className="w-full md:w-2/3 p-6 flex flex-col text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             🐾 Save a Life, Make a Difference!
           </h1>
@@ -61,9 +53,10 @@ function HeroSection() {
             >
               🚑 Emergency Rescue
             </button>
+
             {/* Donation Panel */}
-            <div className="bg-gray-50 p-3 rounded-lg shadow-md flex flex-col md:flex-row items-center w-full md:w-auto">
-              <label className="text-gray-700 font-semibold mr-2">
+            <div className="bg-green-50 p-3 rounded-lg shadow-md flex items-center w-full md:w-auto border-green-600 border-2">
+              <label className="text-gray-700 font-bold mr-2">
                 Donate For NGO:
               </label>
               <input
@@ -71,7 +64,7 @@ function HeroSection() {
                 value={formData.donationAmount}
                 onChange={handleChange}
                 className="w-full md:w-32 p-2 border rounded-md"
-                placeholder="Amount"
+                placeholder=" ₹ Amount"
               />
               {errors.donationAmount && (
                 <span className="text-red-500 text-sm ml-2">
@@ -79,25 +72,31 @@ function HeroSection() {
                 </span>
               )}
               <button
-                onClick={handleSubmit}
-                className="bg-green-500 text-white py-2 px-4 mt-2 md:mt-0 md:ml-3 rounded-md font-semibold hover:bg-green-600 transition w-full md:w-auto"
+                onClick={handleProceed}
+                className="bg-green-500 text-white py-2 px-4 ml-3 rounded-md font-semibold hover:bg-green-600 transition"
               >
                 Proceed
               </button>
             </div>
           </div>
         </div>
+
         {/* Right Side - Image */}
         <div className="w-full md:w-1/3 flex justify-center md:justify-end mt-6 md:mt-0">
           <div
             className="w-60 h-60 md:w-80 md:h-80 bg-cover bg-center rounded-full shadow-lg"
             style={{
+              // backgroundImage:
+              //   "url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+              // backgroundImage:
+              //   "url('https://www.shutterstock.com/image-vector/portrait-chesapeake-bay-retriever-dog-600nw-2438561791.jpg')",
               backgroundImage:
-                "url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+                "url('https://mydigitalpet.com/cdn/shop/products/vector-art-or-white-background-my-digital-pet-13_300x.jpg?v=1664459563')",
             }}
           ></div>
         </div>
       </div>
+
       {/* Emergency Rescue Modal */}
       <Modal
         isOpen={isModalOpen}
